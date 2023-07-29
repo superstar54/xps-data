@@ -18,7 +18,7 @@ corr = {"C_1s": {"core": 345.99, "exp": 6.2},
         "O_1s": {"core": 676.47, "exp": 8.25},
         "F_1s": {"core": 964.49, "exp": 8.76},
         "Si_2p": {"core": 153.76, "exp": 0.57},
-        "Pt_4p": {"core": 248.14, "exp": 0},
+        "Pt_4f": {"core": 248.14, "exp": 0},
         }
 
 for file in os.listdir(path):
