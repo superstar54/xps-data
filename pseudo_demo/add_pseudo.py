@@ -3,6 +3,10 @@ from aiida import load_profile
 from ase.io import read
 import os
 from aiida.orm import Group, CalcJobNode, QueryBuilder, WorkChainNode
+
+# get absolute path of this file
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
 load_profile()
 
 UpfData = DataFactory('core.upf')
@@ -12,7 +16,7 @@ pseudos = {
     "core_hole_paw",
     "gipaw_paw",
            }
-path = f"/home/jovyan/work/pseudo/michael/c_o_f_si"
+path = os.path.join(dir_path, "pseudos")
 # loop all files in path, if file ends with .UPF, store it
 corr = {"C_1s": {"core": 345.99, "exp": 6.2},
         "O_1s": {"core": 676.47, "exp": 8.25},
