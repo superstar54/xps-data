@@ -1,47 +1,49 @@
-from aiida.plugins import WorkflowFactory, DataFactory
-from aiida import load_profile
-from ase.io import read
+from aiida import load_profile, orm
 import os
-from aiida.orm import Group, CalcJobNode, QueryBuilder, WorkChainNode
+import argparse
+import importlib
 
 # get absolute path of this file
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 load_profile()
 
-UpfData = DataFactory('core.upf')
-pseudo_set = Group
+def main():
+    parser = argparse.ArgumentParser(description="Create a pseudo group and add pseudos.")
+    parser.add_argument("folder_path", help="Path to the data folder.")
+    args = parser.parse_args()
+    folder_path = args.folder_path
+    path = os.path.join(dir_path, folder_path)
+    # check if group exists
+    builder = orm.QueryBuilder()
+    builder.append(orm.Group, filters={"label": folder_path})
+    if len(builder.all()) == 0:
+        # create group
+        group = orm.Group(label=folder_path)
+        group.store()
+    else:
+        group = builder.all()[0][0]
+    # loop all files in path, if file ends with .UPF, store it
+    for file in os.listdir(path):
+        if file.endswith(".UPF"):
+            label = file.split(".")[0]
+            ch = file.split(".")[1]
+            if ch.startswith("star"):
+                orbital = ch[4:]
+            else:
+                orbital = 'gs'
+            pseudo = orm.UpfData(os.path.join(path, file))
+            label = f"{label}_{orbital}"
+            pseudo.label = label
+            pseudo.store()
+            print(f"{label}: {pseudo.pk}")
+            group.add_nodes(pseudo)
+    #
+    module_to_load = f"{folder_path}.datas"
+    datas = importlib.import_module(module_to_load)
+    for key, value in datas.datas.items():
+        print(key, value)
+        group.base.extras.set(key, value)
 
-pseudos = {
-    "core_hole_paw",
-    "gipaw_paw",
-           }
-path = os.path.join(dir_path, "pseudos")
-# loop all files in path, if file ends with .UPF, store it
-corr = {"C_1s": {"core": 345.99, "exp": 6.2},
-        "O_1s": {"core": 676.47, "exp": 8.25},
-        "F_1s": {"core": 964.49, "exp": 8.76},
-        "Si_2p": {"core": 153.76, "exp": 0.57},
-        "Pt_4f": {"core": 248.14, "exp": 0},
-        }
-
-for file in os.listdir(path):
-    if file.endswith(".UPF"):
-        label = file.split(".")[0]
-        ch = file.split(".")[1]
-        if ch.startswith("star"):
-            orbital = ch[4:]
-        else:
-            orbital = 'gs'
-        pseudo = UpfData(os.path.join(path, file))
-        label = f"{label}_{orbital}"
-        pseudo.label = label
-        pseudo.store()
-        print(f"{label}: {pseudo.pk}")
-        group = (
-            QueryBuilder()
-            .append(pseudo_set, filters={"label": "xps_pseudo_demo"})
-            .one()[0]
-        )
-        group.add_nodes(pseudo)
-group.base.extras.set("correction", corr)
+if __name__ == "__main__":
+    main()
