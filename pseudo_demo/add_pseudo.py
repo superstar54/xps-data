@@ -32,8 +32,11 @@ def main():
                 orbital = ch[4:]
             else:
                 orbital = 'gs'
-            pseudo = orm.UpfData(os.path.join(path, file))
             label = f"{label}_{orbital}"
+            labels = [node.label for node in group.nodes]
+            if label in labels:
+                continue
+            pseudo = orm.UpfData(os.path.join(path, file))
             pseudo.label = label
             pseudo.store()
             print(f"{label}: {pseudo.pk}")
