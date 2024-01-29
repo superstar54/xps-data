@@ -47,6 +47,8 @@ def main():
     for key, value in datas.datas.items():
         print(key, value)
         group.base.extras.set(key, value)
+    os.system(f"rm {folder_path}.aiida")
+    os.system(f"verdi archive create {folder_path}.aiida --groups {folder_path}")
 
 if __name__ == "__main__":
     main()

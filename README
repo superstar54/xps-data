@@ -6,3 +6,4 @@ Create a aiida group `xps_pseudo_demo` and add the pseudo potentials to it.
 verdi group create xps_pseudo_demo
 python add_pseudo.py
 ```
+
