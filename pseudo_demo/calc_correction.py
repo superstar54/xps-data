@@ -1,7 +1,7 @@
 
 
-element = "Pt"
-orbital = "4f"
+element = "Cu"
+orbital = "2p"
 gipaw_out = f"pseudo_demo_pbe/{element}/gipaw/ld1.out"
 core_hole_out = f"pseudo_demo_pbe/{element}/{orbital}/ld1.out"
 E = {"gipaw": {}, orbital: {}}
